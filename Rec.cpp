@@ -242,6 +242,17 @@ int* getSortedArray(int n){
 	return r;
 }
 
+void sort(Node* node){
+	Node* s = findMinRec(node);
+	Node* e = findMaxRec(node);
+	
+	while (s != e){
+		printNode(s);
+		s = findNextRec(s);
+	}	
+};
+
+
 int main(){
 	int* a;
 	int* b;
