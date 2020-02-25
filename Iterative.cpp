@@ -150,6 +150,16 @@ Node* findPrevIter(Node* node){
 	return pare;
 };
 
+void sort(Node* node){
+	Node* s = findMinIter(node);
+	Node* e = findMaxIter(node);
+	
+	while (s != e){
+		printNode(s);
+		s = findNextIter(s);
+	}	
+};
+
 int main(){
 	int* a;
 	int* b;
