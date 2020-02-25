@@ -22,9 +22,9 @@ typedef struct Node{
 	
 }Node;
 
-
+void printNode(Node*);
 Node* createNode(int, Node*);
-void deleteRec(Node*, int);
+Node* deleteRec(Node*, int);
 Node* findNextRec(Node*);
 Node* findMinRec(Node*);
 Node* findMaxRec(Node*);
@@ -44,98 +44,69 @@ Node* insertRec(Node* node, int n){
 	if (node == NULL)
 		return createNode(n,NULL);
 	
-	Node* temp;
 	if ( n > node->value ){ 
-		temp = insertRec(node->right, n);
-		node->right = temp;
-		temp->parent = node;
+		node->right = insertRec(node->right, n);
+		node->right->parent = node;
 	}
 	else{ // Default: place duplicates on left branch
-		temp = insertRec(node->left, n);
-		node->left = temp;
-		temp->parent = node;
+	  node->left = insertRec(node->left, n);
+
+		node->left->parent = node;
 	}	
 	return node;
 };
 
-void deleteRec(Node* node, int n){
+Node* deleteRec(Node* node, int n){
 	//Hibbard Deletion
 	//http://www.mathcs.emory.edu/~cheung/Courses/171/Syllabus/9-BinTree/BST-delete.html
 	//Textbook
-	cout  << "DELETE"<<endl;
-	//Tree is NULL
-	if(node == NULL)
-		return;
-	
-	//Found the Node
-	if (n == node->value){
-		cout << "FOUND NODE" <<endl;
-		//Case 1 No subtree
-		if(node->parent->left == NULL && node->parent->right == NULL){
-			cout  << "CASE 1"<<endl;
-			if(n < node->parent->value)
-				node->parent->left  = NULL;
-			else
-				node->parent->right = NULL;
-		}
-		//Case 2 One subtree
-		else if(node->left){
-			cout  << "CASE 2"<<endl;
-			if(n < node->parent->value)
-				node->parent->left  = node->left;
-			else
-				node->parent->right = node->left;
-		}
-		else if(node->right){
-			if(n < node->parent->value)
-				node->parent->left  = node->right;
-			else
-				node->parent->right = node->right;
-		}
-		
-		//Case 3
-		else{
-			cout  << "CASE 3"<<endl;
-			
-			Node* temp = findNextRec(node);
-			
-			if(node->parent == NULL){
-				node = temp;
-				temp->parent->left = temp->right;
-				temp->left =
-				temp->parent = NULL;
-				
-			}
-			
-			
-
-			if(n < node->parent->value)
-				node->parent->left  = temp;
-			else
-				node->parent->right = temp;	
-			
-			if(temp->value < temp->parent->value)
-				temp->parent->left  = NULL;
-			else
-				temp->parent->right = NULL;	
-				
-			temp->parent = node->parent;
-			
-			free(node);	
-		}
-		return;
-	}
-	//Recure down the tree
-	else if(n < node->value && node->left){
-		cout  << "Node is LESS"<<endl;
-		deleteRec(node->left,n);
+  if(n < node->value && node->left){
+    cout  << "Node is LESS"<<endl;
+    node->left = deleteRec(node->left,n);
+    return node;
+  }
+  else if( n > node->value && node->right){
+    cout  << "Node is Greater"<<endl;
+    node->right = deleteRec(node->right,n);
+    return node;
+  }
+    else if (n == node->value){
+      if(!node->left && !node->right){
+	cout << "CASE 1"<<endl;
+	return NULL;
+      }
+      else if(node->left && !node->right){
+	cout << "CASE 2" <<endl;
+	return node->left;
+      }
+      else if(node->right && !node->left){
+	cout << "CASE 2" <<endl;
+	return node->right;
+      }
+      else if(node->right && node->left){
+	Node* succ = findNextRec(node);
+	Node* parent = succ->parent;
+	if(!succ->right){
+	  succ->left = node->left;
+	  succ->right = node->right;
+	  succ->parent = node->parent;
+	  free(node);
+	  return succ;
 	}
 	else{
-		cout  << "Node is Greater"<<endl;
-		if (node->right == NULL)
-			return;
-		deleteRec(node->right,n);
+	  succ->parent->left = succ->right;
+	  succ->right->parent = succ->parent;
+	  succ->left = node->left;
+	  succ->right = node->right;
+	  succ->parent = node->parent;
+	  free(node);
+	  return succ;
 	}
+	  
+      }
+	
+    }
+  return node;
 };
 
 Node* findNextRec(Node* node){
@@ -309,16 +280,24 @@ int main(){
 		printNode(n);
 		n = findPrevRec(n);	
 	}
-	
+	cout << "MAX: " << (aa->value)<<endl;
+	cout << "MIN: " << (ab->value)<<endl;	
 	
 	cout << "NEXT: " << (findNextRec(ab))->value <<endl;
-	
-	deleteRec(root,aa->value);
+	cout << "DELETE" <<endl;
+	root = deleteRec(root,aa->value);
 	aa = findMaxRec(root);
 	
 	cout << "MAX: " << (aa->value)<<endl;
-	deleteRec(root,ab->value);
+	cout << "DELETE" <<endl;	
+	root = deleteRec(root,ab->value);
 	
 	ab = findMinRec(root);
 	cout << "Min: " << (ab->value)<<endl;
+	aa = findMaxRec(root);
+	cout << "Max: " << (aa->value)<<endl;
+
+	int x = 0;
+	cin >> x;
+	root = deleteRec(root,x);
 }
